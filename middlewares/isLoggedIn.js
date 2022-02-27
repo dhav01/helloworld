@@ -12,7 +12,6 @@ exports.isloggedIn = async (req, res, next) => {
     }
 
     const decoded = await jwt.verify(token, process.env.JWT_SECRET)
-    console.log(decoded)
     const user = await User.findById(decoded.id)
 
     //incase user deleted the account or someone modified the cookie

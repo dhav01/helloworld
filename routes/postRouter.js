@@ -1,12 +1,20 @@
 const express = require('express')
-const { createPost } = require('../controllers/post')
+const {
+  createPost,
+  getAllPosts,
+  likePost,
+  unlikePost,
+} = require('../controllers/post')
 const { register, login } = require('../controllers/user')
 const { isloggedIn } = require('../middlewares/isLoggedIn')
 
 const router = express.Router()
 
 router.route('/posts').post(isloggedIn, createPost)
-// router.route('/all_posts').get(isloggedIn, getAllPosts)
+router.route('/all_posts').get(isloggedIn, getAllPosts)
+
+router.route('/like/:id').post(isloggedIn, likePost)
+router.route('/unlike/:id').post(isloggedIn, unlikePost)
 // router
 //   .route('/posts/:id')
 //   .get(isloggedIn, getPost)

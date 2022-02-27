@@ -28,3 +28,91 @@ exports.createPost = async (req, res) => {
     })
   }
 }
+
+exports.getAllPosts = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate('posts')
+    res.status(200).json({
+      status: 'success',
+      data: { user },
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: 'Error',
+      message: error.message,
+    })
+  }
+}
+
+exports.likePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+
+    //incorrect id or post deleted before liking
+    if (!post) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'post not found',
+      })
+    }
+
+    //if post is already liked
+    if (post.likes.includes(req.user._id)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'post already liked',
+      })
+    } else {
+      post.likes.push(req.user._id)
+
+      await post.save()
+
+      res.status(200).json({
+        status: 'success',
+        message: 'post liked',
+      })
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: error.message,
+    })
+  }
+}
+
+exports.unlikePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+
+    //incorrect id or post deleted before liking
+    if (!post) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'post not found',
+      })
+    }
+
+    //if post is not liked
+    if (!post.likes.includes(req.user._id)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'post is unliked already!',
+      })
+    } else {
+      //removing the liked post from the user document
+      const index = post.likes.indexOf(req.user._id)
+      post.likes.splice(index, 1)
+      await post.save()
+
+      res.status(200).json({
+        status: 'success',
+        message: 'post unliked successfully',
+      })
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: error.message,
+    })
+  }
+}

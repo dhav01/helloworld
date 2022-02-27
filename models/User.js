@@ -1,42 +1,56 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const userSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Please specify your name'],
-  },
-  email: {
-    type: String,
-    unique: [true, 'email already exists!'],
-    required: [true, 'Please specify your email id'],
-  },
-  password: {
-    type: String,
-    required: [true, 'Please enter a valid password'],
-    minLength: [6, 'password length should be more than 5 characters'],
-    select: false,
-  },
-  posts: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Post',
+const userSchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Please specify your name'],
     },
-  ],
+    email: {
+      type: String,
+      unique: [true, 'email already exists!'],
+      required: [true, 'Please specify your email id'],
+    },
+    password: {
+      type: String,
+      required: [true, 'Please enter a valid password'],
+      minLength: [6, 'password length should be more than 5 characters'],
+      select: false,
+    },
+    // posts: [
+    //   {
+    //     type: mongoose.Schema.ObjectId,
+    //     ref: 'Post',
+    //   },
+    // ],
 
-  followers: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
-    },
-  ],
-  following: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
-    },
-  ],
+    followers: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
+    following: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+)
+
+//using virtual property to avoid saving post ids in user document
+userSchema.virtual('posts', {
+  ref: 'Post',
+  foreignField: 'user',
+  localField: '_id',
 })
+
 userSchema.pre('save', async function (next) {
   //only run the func if password is modified or added
   if (this.isModified('password')) {
