@@ -46,6 +46,7 @@ exports.getAllPosts = async (req, res) => {
 
 exports.likePost = async (req, res) => {
   try {
+    console.log(req.params.id)
     const post = await Post.findById(req.params.id)
 
     //incorrect id or post deleted before liking

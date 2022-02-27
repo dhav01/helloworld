@@ -7,14 +7,15 @@ const {
 } = require('../controllers/post')
 const { register, login } = require('../controllers/user')
 const { isloggedIn } = require('../middlewares/isLoggedIn')
+const { isValidId } = require('../middlewares/isValidId')
 
 const router = express.Router()
 
 router.route('/posts').post(isloggedIn, createPost)
 router.route('/all_posts').get(isloggedIn, getAllPosts)
 
-router.route('/like/:id').post(isloggedIn, likePost)
-router.route('/unlike/:id').post(isloggedIn, unlikePost)
+router.route('/like/:id').post(isloggedIn, isValidId, likePost)
+router.route('/unlike/:id').post(isloggedIn, isValidId, unlikePost)
 // router
 //   .route('/posts/:id')
 //   .get(isloggedIn, getPost)
