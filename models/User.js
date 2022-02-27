@@ -45,11 +45,8 @@ userSchema.pre('save', async function (next) {
   next()
 })
 
-userSchema.methods.matchPassword = async function (
-  candidatePassword,
-  userPassword
-) {
-  return await bcrypt.compare(candidatePassword, userPassword)
+userSchema.methods.matchPassword = async function (userPassword) {
+  return await bcrypt.compare(userPassword, this.password)
 }
 
 userSchema.methods.generateToken = async function (id) {

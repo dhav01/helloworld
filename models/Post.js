@@ -5,7 +5,7 @@ const postSchema = mongoose.Schema({
     type: String,
     required: [true, 'post should contain title'],
   },
-  desc: {
+  description: {
     type: String,
     required: [true, 'post should contain description'],
   },

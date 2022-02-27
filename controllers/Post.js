@@ -1,11 +1,30 @@
-// const express = require('express')
-// const { createPost } = require('../controllers/post')
+const Post = require('../models/Post')
+const User = require('../models/User')
 
-// const router = express.Router()
+exports.createPost = async (req, res) => {
+  try {
+    const newPostData = {
+      title: req.body.title,
+      description: req.body.description,
+      user: req.user._id,
+    }
 
-// router.route('/all_posts').get(getAllPosts)
-// router.route('/posts').post(createPost)
+    const newPost = await Post.create(newPostData)
 
-// router.route('/posts/:id').get(getPost).delete(deletePost)
+    //adding the new post to user's document
+    const user = await User.findById(req.user._id)
+    user.posts.push(newPost._id)
 
-// module.exports = router
+    await user.save()
+
+    res.status(200).json({
+      status: 'success',
+      newPost,
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: error.message,
+    })
+  }
+}

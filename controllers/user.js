@@ -1,5 +1,9 @@
 const User = require('../models/User')
 
+const cookieOptions = {
+  expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+  httpOnly: true,
+}
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body
@@ -13,7 +17,9 @@ exports.register = async (req, res) => {
     }
 
     user = await User.create({ name, email, password })
-    res.status(200).json({
+
+    const token = await user.generateToken(user._id)
+    res.status(201).cookie('token', token, cookieOptions).json({
       status: 'success',
       user,
     })
@@ -34,19 +40,20 @@ exports.login = async (req, res) => {
     if (!user)
       return res
         .status(400)
-        .json({ status: fail, message: 'user does not exist!' })
+        .json({ status: 'fail', message: 'user does not exist!' })
 
     //if exists, validating the user password
-    const isMatch = user.matchPassword(password, user.password)
+    const isMatch = await user.matchPassword(password)
 
-    if (!isMatch)
+    if (!isMatch) {
       return res
         .status(400)
-        .json({ status: fail, message: 'incorrect email or password!' })
+        .json({ status: 'fail', message: 'incorrect email or password!' })
+    }
 
     const token = await user.generateToken(user._id)
 
-    res.status(200).cookie('token', token).json({
+    res.status(200).cookie('token', token, cookieOptions).json({
       status: 'success',
       user,
     })
