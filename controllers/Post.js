@@ -46,7 +46,6 @@ exports.getAllPosts = async (req, res) => {
 
 exports.likePost = async (req, res) => {
   try {
-    console.log(req.params.id)
     const post = await Post.findById(req.params.id)
 
     //incorrect id or post deleted before liking
@@ -110,6 +109,42 @@ exports.unlikePost = async (req, res) => {
         message: 'post unliked successfully',
       })
     }
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: error.message,
+    })
+  }
+}
+
+exports.deletePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+
+    //invalid post id
+    if (!post) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'post not found',
+      })
+    }
+
+    if (post.user.toString() !== req.user._id.toString()) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'You are not authorised to delete this post!',
+      })
+    }
+
+    await post.remove()
+
+    //removing the post from user document as well
+    const user = await User.findById(req.user._id)
+    const index = user.posts.indexOf(req.params.id)
+    user.posts.splice(index, 1)
+    await user.save()
+
+    res.status(204).json()
   } catch (error) {
     res.status(500).json({
       status: 'fail',
