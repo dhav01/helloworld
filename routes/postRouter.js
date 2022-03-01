@@ -6,7 +6,7 @@ const {
   unlikePost,
   deletePost,
   getPost,
-} = require('../controllers/post')
+} = require('../controllers/Post')
 
 const { isloggedIn } = require('../middlewares/isLoggedIn')
 const { isValidId } = require('../middlewares/isValidId')
