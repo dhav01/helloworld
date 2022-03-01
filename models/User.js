@@ -18,13 +18,6 @@ const userSchema = mongoose.Schema(
       minLength: [6, 'password length should be more than 5 characters'],
       select: false,
     },
-    // posts: [
-    //   {
-    //     type: mongoose.Schema.ObjectId,
-    //     ref: 'Post',
-    //   },
-    // ],
-
     followers: [
       {
         type: mongoose.Schema.ObjectId,
