@@ -11,15 +11,16 @@ exports.createPost = async (req, res) => {
 
     const newPost = await Post.create(newPostData)
 
-    //adding the new post to user's document
-    const user = await User.findById(req.user._id)
-    user.posts.push(newPost._id)
-
-    await user.save()
+    const postData = {
+      id: newPost._id,
+      title: req.body.title,
+      description: req.body.description,
+      createdAt: newPost.createdAt,
+    }
 
     res.status(200).json({
       status: 'success',
-      newPost,
+      postData,
     })
   } catch (error) {
     res.status(500).json({
@@ -31,7 +32,9 @@ exports.createPost = async (req, res) => {
 
 exports.getAllPosts = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate('posts')
+    const user = await User.findById(req.user._id)
+      .populate('posts')
+      .sort({ createdAt: 1 })
     res.status(200).json({
       status: 'success',
       data: { user },
@@ -39,6 +42,36 @@ exports.getAllPosts = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       status: 'Error',
+      message: error.message,
+    })
+  }
+}
+
+exports.getPost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id).populate('comments')
+
+    if (!post) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'post not found!',
+      })
+    }
+
+    const postData = {
+      id: req.params.id,
+      likes: post.likeCount,
+      commentsCount: post.comments.count,
+      comments: post.comments,
+    }
+
+    res.status(200).json({
+      status: 'success',
+      postData,
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
       message: error.message,
     })
   }
@@ -84,7 +117,6 @@ exports.unlikePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
 
-    //incorrect id or post deleted before liking
     if (!post) {
       return res.status(404).json({
         status: 'fail',
@@ -92,14 +124,12 @@ exports.unlikePost = async (req, res) => {
       })
     }
 
-    //if post is not liked
     if (!post.likes.includes(req.user._id)) {
       return res.status(400).json({
         status: 'fail',
         message: 'post is unliked already!',
       })
     } else {
-      //removing the liked post from the user document
       const index = post.likes.indexOf(req.user._id)
       post.likes.splice(index, 1)
       await post.save()
@@ -137,12 +167,6 @@ exports.deletePost = async (req, res) => {
     }
 
     await post.remove()
-
-    //removing the post from user document as well
-    const user = await User.findById(req.user._id)
-    const index = user.posts.indexOf(req.params.id)
-    user.posts.splice(index, 1)
-    await user.save()
 
     res.status(204).json()
   } catch (error) {
