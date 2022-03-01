@@ -97,20 +97,3 @@ exports.unFollowUser = async (req, res) => {
     })
   }
 }
-
-// exports.getUserStats = async(req, res)=>{
-//     try {
-
-//         const stats = await User.aggregate([
-//             {
-//                 $match :
-//             }
-//         ])
-
-//     } catch (error) {
-//         res.status(500).json({
-//           status: 'fail',
-//           error: error.message,
-//         })
-//     }
-// }
