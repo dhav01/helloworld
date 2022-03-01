@@ -6,7 +6,11 @@ const commentSchema = mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  postId: { type: mongoose.Schema.Types.ObjectId, ref: 'Post', required: true },
+  postId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Post',
+    required: [true, 'please enter valid postId'],
+  },
 })
 
 module.exports = mongoose.model('Comment', commentSchema)

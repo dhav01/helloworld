@@ -5,10 +5,13 @@ const {
   likePost,
   unlikePost,
   deletePost,
+  getPost,
 } = require('../controllers/post')
-const { register, login } = require('../controllers/user')
+
 const { isloggedIn } = require('../middlewares/isLoggedIn')
 const { isValidId } = require('../middlewares/isValidId')
+const userRouter = require('../routes/userRouter')
+const { addComment } = require('../controllers/Comment')
 
 const router = express.Router()
 
@@ -19,12 +22,10 @@ router.route('/like/:id').post(isloggedIn, isValidId, likePost)
 router.route('/unlike/:id').post(isloggedIn, isValidId, unlikePost)
 router
   .route('/posts/:id')
-  //   .get(isloggedIn, getPost)
   .delete(isloggedIn, isValidId, deletePost)
+  .get(isloggedIn, isValidId, getPost)
+router.route('/comment/:id').post(isloggedIn, isValidId, addComment)
 
-router.route('/register').post(register)
-router.route('/authenticate').post(login)
-
-// router.route('/posts/:id').get(getPost).delete(deletePost)
+router.route('*').all(userRouter)
 
 module.exports = router
