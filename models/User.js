@@ -51,6 +51,14 @@ userSchema.virtual('posts', {
   localField: '_id',
 })
 
+userSchema.virtual('followersCount').get(function () {
+  return this.followers.length
+})
+
+userSchema.virtual('followingCount').get(function () {
+  return this.following.length
+})
+
 userSchema.pre('save', async function (next) {
   //only run the func if password is modified or added
   if (this.isModified('password')) {
