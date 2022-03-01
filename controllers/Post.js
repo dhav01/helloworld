@@ -1,5 +1,6 @@
 const Post = require('../models/Post')
 const User = require('../models/User')
+const mongoose = require('mongoose')
 
 exports.createPost = async (req, res) => {
   try {
@@ -14,7 +15,7 @@ exports.createPost = async (req, res) => {
     const postData = {
       id: newPost._id,
       title: req.body.title,
-      description: req.body.description,
+      desc: req.body.description,
       createdAt: newPost.createdAt,
     }
 
@@ -32,12 +33,27 @@ exports.createPost = async (req, res) => {
 
 exports.getAllPosts = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id)
-      .populate('posts')
+    const postStats = await Post.find({ user: req.user._id })
+      .populate('comments')
+      .select('-user -__v ')
       .sort({ createdAt: 1 })
+
+    var statsToShow = []
+    postStats.map((el) => {
+      const newData = {
+        id: el._id,
+        title: el.title,
+        desc: el.description,
+        createdAt: el.createdAt,
+        comments: el.comments,
+        likes: el.likeCount,
+      }
+      statsToShow.push(newData)
+    })
+
     res.status(200).json({
       status: 'success',
-      data: { user },
+      statsToShow,
     })
   } catch (error) {
     res.status(500).json({
@@ -61,7 +77,7 @@ exports.getPost = async (req, res) => {
     const postData = {
       id: req.params.id,
       likes: post.likeCount,
-      commentsCount: post.comments.count,
+      commentsCount: post.comments.length,
       comments: post.comments,
     }
 

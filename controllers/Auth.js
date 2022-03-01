@@ -1,8 +1,16 @@
 const User = require('../models/User')
-
+const validator = require('validator')
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body
+
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid email address',
+      })
+    }
+
     const user = await User.findOne({ email }).select('+password')
 
     //checking whether user exists
